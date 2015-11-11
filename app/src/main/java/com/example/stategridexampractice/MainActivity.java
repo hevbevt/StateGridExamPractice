@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private RadioButton radioButton3;
     private RadioButton radioButton4;
     private TextView answerText;
+    private TextView stemNumber;
 
     Button startSolution;
     Button lastQuestion;
@@ -32,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     //题目的指针。
     Integer t = 0;
     //总共的题数。
-    final int N = 9;
+    final int N = 278;
     String answer = "";
 
     @Override
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         stemText = (TextView) findViewById(R.id.stem);
-
+        stemNumber = (TextView) findViewById(R.id.stem_number);
         radioGroup = (RadioGroup) findViewById(R.id.radio_group);
 
         radioButton1 = (RadioButton) findViewById(R.id.radio_button1);
@@ -58,11 +60,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (startSolution.getText() != "下一题")
                     startSolution.setText("下一题");
+
+
                 radioGroup.clearCheck();
                 answerText.setText("请选择你认为正确的选项。");
 
                 if (t < N) t++;
-
+                stemNumber.setText("单项选择第" + t + "题，总共" + N +"道题。");
                 stemText.setText(getFromRaw(t.toString() + "stem"));
                 radioButton1.setText(getFromRaw(t.toString() + "choice1"));
                 radioButton2.setText(getFromRaw(t.toString() + "choice2"));
@@ -77,10 +81,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                if (startSolution.getText() != "下一题")
+                    return;
                 radioGroup.clearCheck();
                 answerText.setText("请选择你认为正确的选项。");
                 if (t > 1) t--;
 
+                stemNumber.setText("单项选择第" + t + "题，总共" + N +"道题。");
                 stemText.setText(getFromRaw(t.toString() + "stem"));
                 radioButton1.setText(getFromRaw(t.toString() + "choice1"));
                 radioButton2.setText(getFromRaw(t.toString() + "choice2"));
@@ -126,7 +133,8 @@ public class MainActivity extends AppCompatActivity {
             temp = line.substring(0, key.length());
             while (!temp.equals(key)) {
                 line = reader.readLine();
-                temp = line.substring(0, key.length());
+                if (line.length() >= key.length())
+                    temp = line.substring(0, key.length());
             }
 
             while (line != null) {

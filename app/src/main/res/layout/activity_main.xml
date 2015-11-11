@@ -8,6 +8,13 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/stem_number"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:text="此处显示题目序号。"
+        android:textColor="#000000"/>
+
+    <TextView
         android:id="@+id/stem"
         android:text="题目在这里，请点击答题开始。" android:layout_width="match_parent"
         android:layout_height="100dp"
@@ -88,5 +95,7 @@
             android:layout_margin="5dp"/>
 
     </LinearLayout>
+
+
 
 </LinearLayout>
