@@ -1,13 +1,14 @@
 package com.example.stategridexampractice;
 
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,16 +28,19 @@ public class MainActivity extends AppCompatActivity {
     private RadioButton radioButton4;
     private TextView answerText;
     private TextView stemNumber;
+    private EditText transInput;
 
     Button startSolution;
     Button lastQuestion;
+    Button transStem;
 
     RadioGroup radioGroup;
     //题目的指针。
     Integer t = 0;
     //总共的题数。
-    final int N = 278;
+    final int N = 283;
     String answer = "";
+    private boolean checkAnswer = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         stemText = (TextView) findViewById(R.id.stem);
         stemNumber = (TextView) findViewById(R.id.stem_number);
         radioGroup = (RadioGroup) findViewById(R.id.radio_group);
+        transInput = (EditText) findViewById(R.id.trans_input);
 
         radioButton1 = (RadioButton) findViewById(R.id.radio_button1);
         radioButton2 = (RadioButton) findViewById(R.id.radio_button2);
@@ -58,21 +64,27 @@ public class MainActivity extends AppCompatActivity {
         startSolution.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (startSolution.getText() != "下一题")
-                    startSolution.setText("下一题");
+                if (startSolution.getText() != "答题") {
+                    radioGroup.clearCheck();
+                    startSolution.setText("答题");
+                    answerText.setText("请选择你认为正确的选项。");
 
-
-                radioGroup.clearCheck();
-                answerText.setText("请选择你认为正确的选项。");
-
-                if (t < N) t++;
-                stemNumber.setText("单项选择第" + t + "题，总共" + N +"道题。");
-                stemText.setText(getFromRaw(t.toString() + "stem"));
-                radioButton1.setText(getFromRaw(t.toString() + "choice1"));
-                radioButton2.setText(getFromRaw(t.toString() + "choice2"));
-                radioButton3.setText(getFromRaw(t.toString() + "choice3"));
-                radioButton4.setText(getFromRaw(t.toString() + "choice4"));
-                answer = getFromRaw(t.toString() + "answer");
+                    if (t < N) t++;
+                    stemNumber.setText("单项选择第" + t + "题，总共" + N +"道题。");
+                    stemText.setText(getFromRaw(t.toString() + "stem"));
+                    radioButton1.setText(getFromRaw(t.toString() + "choice1"));
+                    radioButton2.setText(getFromRaw(t.toString() + "choice2"));
+                    radioButton3.setText(getFromRaw(t.toString() + "choice3"));
+                    radioButton4.setText(getFromRaw(t.toString() + "choice4"));
+                    answer = getFromRaw(t.toString() + "answer");
+                    return;
+                }
+                if (!answer.equals("") && checkAnswer) {
+                        answerText.setText("回答正确。");
+                    } else {
+                        answerText.setText("回答错误，正确答案是" + answer + "。");
+                    }
+                startSolution.setText("下一题");
             }
         });
 
@@ -81,7 +93,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if (startSolution.getText() != "下一题")
+                if (startSolution.getText().equals("下一题"))
+                    startSolution.setText("答题");
+                if (t == 0)
                     return;
                 radioGroup.clearCheck();
                 answerText.setText("请选择你认为正确的选项。");
@@ -94,6 +108,37 @@ public class MainActivity extends AppCompatActivity {
                 radioButton3.setText(getFromRaw(t.toString() + "choice3"));
                 radioButton4.setText(getFromRaw(t.toString() + "choice4"));
                 answer = getFromRaw(t.toString() + "answer");
+            }
+        });
+
+        transStem = (Button) findViewById(R.id.trans_stem);
+        transStem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String transInputString = transInput.getText().toString();
+                int transInputInt = 0;
+                //判断文本框中的字符串是否为数字且不为空，如果是则转换为int。
+                if (isInteger(transInputString) && !transInputString.equals(""))
+                     transInputInt = Integer.parseInt(transInputString);
+                if (transInputInt > 0 && transInputInt <= N) {
+                    radioGroup.clearCheck();
+                    t = transInputInt;
+                    if (startSolution.getText() == "下一题")
+                        startSolution.setText("答题");
+                    stemNumber.setText("单项选择第" + t + "题，总共" + N + "道题。");
+                    stemText.setText(getFromRaw(t.toString() + "stem"));
+                    radioButton1.setText(getFromRaw(t.toString() + "choice1"));
+                    radioButton2.setText(getFromRaw(t.toString() + "choice2"));
+                    radioButton3.setText(getFromRaw(t.toString() + "choice3"));
+                    radioButton4.setText(getFromRaw(t.toString() + "choice4"));
+                    answer = getFromRaw(t.toString() + "answer");
+                    transInput.setText("");
+                    transInput.setHint("请输入要跳转到的题号。");
+                } else {
+                    transInput.setText("");
+                    transInput.setHint("请输入正确的题号。");
+                    transInput.clearFocus();
+                }
             }
         });
 
@@ -111,38 +156,33 @@ public class MainActivity extends AppCompatActivity {
                     case "D":answerId = radioButton4.getId();
                         break;
                 }
-                if (answer != "")
-                    if (answerId == checkedId) {
-                        answerText.setText("回答正确。");
-                    } else {
-                        answerText.setText("回答错误，正确答案是" + answer + "。");
-                    }
+                checkAnswer = (answerId == checkedId);
             }
         });
     }
 
     public String getFromRaw(String key) {
-        StringBuilder result = new StringBuilder();
-        BufferedReader reader = null;
-        try {
-            InputStream in = getResources().openRawResource(R.raw.tiku);
-            reader = new BufferedReader(new InputStreamReader(in));
-            String line;
-            String temp;
-            line = reader.readLine();
-            temp = line.substring(0, key.length());
-            while (!temp.equals(key)) {
+                StringBuilder result = new StringBuilder();
+                BufferedReader reader = null;
+                try {
+                    InputStream in = getResources().openRawResource(R.raw.tiku);
+                    reader = new BufferedReader(new InputStreamReader(in));
+                    String line;
+                    String temp;
+                    line = reader.readLine();
+                    temp = line.substring(0, key.length());
+                    while (!temp.equals(key)) {
                 line = reader.readLine();
                 if (line.length() >= key.length())
                     temp = line.substring(0, key.length());
             }
 
             while (line != null) {
-                String tempKey = line.substring(0, key.length());
-                //去掉文本中的KEY。
-                if (tempKey.equals(key))
-                    result.append(line.substring(key.length(), line.length()));
-                else
+                    String tempKey = line.substring(0, key.length());
+                    //去掉文本中的KEY。
+                    if (tempKey.equals(key))
+                        result.append(line.substring(key.length(), line.length()));
+                    else
                     result.append(line);
                 //遇到;时去掉分号并把字符串return。
                 if (line.endsWith(";")) {
@@ -155,6 +195,11 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return "没有找到" + key + "的内容。";
+    }
+
+    public static boolean isInteger(String str) {
+        Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
+        return pattern.matcher(str).matches();
     }
 
     @Override
@@ -174,6 +219,11 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.single_choice) {
             return true;
+        }
+        if (id == R.id.multiple_answer) {
+            Intent intent = new Intent(MainActivity.this, MultipleActivity.class);
+            startActivity(intent);
+            finish();
         }
 
         return super.onOptionsItemSelected(item);

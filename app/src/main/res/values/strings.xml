@@ -2,5 +2,12 @@
     <string name="app_name">国家电网考试练习</string>
 
     <string name="hello_world">Hello world!</string>
-    <string name="single_choice">单项选择题</string>
+    <string name="single_answer">单项选择题</string>
+    <string name="multiple_answer">多项选择题</string>
+    <string name="answer_one">答案1</string>
+    <string name="answer_two">答案2</string>
+    <string name="answer_three">答案3</string>
+    <string name="answer_four">答案4</string>
+    <string name="search_label">搜索</string>
+    <string name="search_hint">请输入要搜索的内容。</string>
 </resources>
